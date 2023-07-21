@@ -1,38 +1,3 @@
-// var Domains = ['rutracker.org', '1337x.to']
-// var DomainsImploded = Domains.join('|')
-// var Host = "196.17.78.141"
-// var Port = "8000"
-// var Login = "4t7Wys"
-// var Password = "n2Cc9Q"
-// var Protocol = "http"
-// var FullProxy = '196.17.78.141:8000:4t7Wys:n2Cc9Q'
-// ProxyData = FullProxy.split(':');
-
-// var configAll = {
-//   mode: "fixed_servers",
-//   rules: {
-//   singleProxy: {
-//       scheme: "http",
-//       host: Host,
-//       port: parseInt(Port)
-//   },
-//   bypassList: ["localhost"]
-//   }
-// };
-
-// host == 'rutracker.org'
-
-// var configPac = {
-//   mode: "pac_script",
-//   pacScript: {
-//     data: "function FindProxyForURL(url, host) {\n" +
-//           "  if (host == '1337x.to')\n" +
-//           "    return 'PROXY "+Host+":"+Port+"';\n" +
-//           "  return 'DIRECT';\n" +
-//           "}"
-//   }
-// };
-
 function getData(sKey) {
   return new Promise(function(resolve, reject) {
     chrome.storage.local.get(sKey, function(items) {
@@ -88,7 +53,6 @@ function SelectConnectionType(ConnectionType, Whitelist, ProxyData) {
         mode: "fixed_servers",
         rules: {
         singleProxy: {
-            // scheme: Protocol,
             host: ProxyData[0],
             port: parseInt(ProxyData[1])
         },
@@ -114,9 +78,7 @@ function SetProxy() {
           WhiteListFilter = result.Whitelist;
           break;
       }
-      // console.log(WhiteListFilter);
       Config = SelectConnectionType(result.ConType, WhiteListFilter, ProxyData);
-      // console.log(Config);
       if (Config) {
         chrome.proxy.settings.set({value:Config});
       }
@@ -126,23 +88,6 @@ function SetProxy() {
     }
   });
 }
-
-
-
-// function callbackFn(details, callback) {
-//   function gotCredentials(credentials) {
-//     // console.log(credentials);
-//     ProxyData = credentials.ProxyData.split(':');
-//     // console.log(ProxyData);
-//     ProxyUser = {
-//             username: ProxyData[2],
-//             password: ProxyData[3]
-//             }
-//     callback({authCredentials: ProxyUser});
-//   }
-//   chrome.storage.local.get("ProxyData", gotCredentials);
-// }
-
 function callbackFnTest(details, callback) {
   console.log(details.isProxy);
   if (details.isProxy) {
@@ -159,15 +104,6 @@ function callbackFnTest(details, callback) {
     callback();
   }
 }
-
-// function callbackFn() {
-//   return {
-//       authCredentials: {
-//       username: ProxyData[2],
-//       password: ProxyData[3]
-//       }
-//   };
-// }
 
 SetProxy();
 
