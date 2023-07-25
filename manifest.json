@@ -2,9 +2,9 @@
     "manifest_version": 3,
     "name": "New Gate",
     "description": "Proxy",
-    "version": "1.1",
+    "version": "1.2",
     "background": {
-      "service_worker": "proxy.js"
+      "service_worker": "proxy.js", "type": "module"
     },
     "permissions": [
       "proxy",
@@ -12,7 +12,8 @@
       "unlimitedStorage",
       "storage",
       "webRequest",
-      "webRequestAuthProvider"
+      "webRequestAuthProvider",
+      "scripting"
     ],
     "host_permissions": [
       "*://*/*"
