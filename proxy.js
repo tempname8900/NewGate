@@ -6,7 +6,7 @@ chrome.webRequest.onAuthRequired.addListener(
   {urls: ["*://*/*"]},
   ["asyncBlocking"]
 );
-chrome.webRequest.onBeforeRequest.addListener(
-  SetAdditionalHosts,
-  {urls: ["*://*/*"]},
-);
+// chrome.webRequest.onBeforeRequest.addListener(
+//   SetAdditionalHosts,
+//   {urls: ["*://*/*"]},
+// );
