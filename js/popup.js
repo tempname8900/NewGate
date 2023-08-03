@@ -1,8 +1,8 @@
-import {SetProxy} from "./chromeapi.js";
-
+import {SetProxy, RemoveVarFromLocalStorage, UpdateAdditionalHosts} from "./chromeapi.js";
 $('#SaveWhitelist').click(function (e) { 
     e.preventDefault();
     var WhiteList = $('#Whitelist').val().replace(/\n/g, "|");
+    UpdateAdditionalHosts(WhiteList);
     SetProxy(chrome.storage.local.set({ Whitelist: WhiteList }));
 });
 $('#SaveProxyData').click(function (e) { 
@@ -15,7 +15,6 @@ $('#AdditionalHosts').click(function (e) {
         $(this).prop('checked', true);
         chrome.storage.local.set({ AdditionalHosts: 'yes' }, function(res) {
             chrome.storage.local.get("AdditionalHosts", function(result) {
-                
             });
         });
     }
@@ -23,7 +22,6 @@ $('#AdditionalHosts').click(function (e) {
         $(this).prop('checked', false);
         chrome.storage.local.set({ AdditionalHosts: 'no' }, function(res) {
             chrome.storage.local.get("AdditionalHosts", function(result) {
-                
             });
         });
     }
@@ -38,8 +36,23 @@ $('#ClearStorage').click(function (e) {
     e.preventDefault();
     chrome.storage.local.clear();
 });
+$('#ClearAH').click(function (e) {
+    e.preventDefault();
+    RemoveVarFromLocalStorage("ahList");
+});
+$('#AlertAH').click(function (e) {
+    e.preventDefault();
+    chrome.storage.local.get(["Whitelist", "ConType", "AdditionalHosts", "ahList"], function(result) {
+        alert(result.ahList);
+    });
+});
 
 $(document).ready(function () {
+    chrome.storage.local.get(all => {
+        for (const [key, val] of Object.entries(all)) {
+          console.log(key);
+        }
+    });
     chrome.storage.local.get(["ConType", "Whitelist", "ProxyData", "AdditionalHosts"], function(result){
         if (result.Whitelist) {
             var Whitelist = result.Whitelist.split("|").join("\n");
@@ -65,7 +78,6 @@ $(document).ready(function () {
 
 $('button[action]').click(function (e) { 
     e.preventDefault();
-    
     var Action = $(this).attr('action');
     $('button[action]').each(function() {
         $(this).removeClass("ActiveType");
