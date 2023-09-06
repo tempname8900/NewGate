@@ -30,7 +30,6 @@ export function SetProxy() {
                     var WhiteListFilter = result.Whitelist;
                 break;
             }
-            console.log(WhiteListFilter);
             var Config = SelectConnectionType(result.ConType, WhiteListFilter, ProxyData);
             if (Config) {
                 chrome.proxy.settings.set({value:Config});
@@ -43,6 +42,7 @@ export function SetProxy() {
 }
 
 export function SetAdditionalHosts(details) {
+    var BlackList = Array("mc.yandex.ru", "www.google-analytics.com", "cdnjs.cloudflare.com", "www.google.com", "apis.google.com", "accounts.google.com", "www.googletagmanager.com", "www.google.ru", "analytics.google.com", "static.cloudflareinsights.com", "cloudflareinsights.com", "code.jquery.com", "cdn.jsdelivr.net", "imgur.com", "fonts.googleapis.com", "translate.google.com", "firestore.googleapis.com", "blackhole.beeline.ru");
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         chrome.storage.local.get(["Whitelist", "ConType", "AdditionalHosts", "ahList"], function(result) {
             var WhiteListArray = result.Whitelist.split("|");
@@ -53,8 +53,7 @@ export function SetAdditionalHosts(details) {
                 }
                 if (WhiteListArray.includes(Domen)) {
                     var AdHost = details.url.split('/')[2];
-                    
-                    if (result.ahList && Domen !== AdHost && details.initiator !== undefined && Initiator===Domen) {
+                    if (result.ahList && Domen !== AdHost && details.initiator !== undefined && Initiator===Domen && !BlackList.includes(AdHost)) {
                         var ahList = AdditionalHostsListGet(result.ahList);
                         if (ahList[Domen] !== undefined) {
                             if (!ahList[Domen].includes(AdHost)) {
@@ -66,12 +65,16 @@ export function SetAdditionalHosts(details) {
                             ahList[Domen].push(AdHost);
                         }
                         var test5 = AdditionalHostsListForm(ahList);
-                        chrome.storage.local.set({ahList:test5});
+                        chrome.storage.local.set({ahList:test5}, function(params) {
+                            SetProxy();
+                        });
                     }
                     else {
-                        if (Domen !== AdHost && details.initiator !== undefined && Initiator===Domen) {
+                        if (Domen !== AdHost && details.initiator !== undefined && Initiator===Domen && !BlackList.includes(AdHost)) {
                             var NewAhList = Domen+"@"+AdHost;
-                            chrome.storage.local.set({ahList:NewAhList});
+                            chrome.storage.local.set({ahList:NewAhList}, function(params) {
+                                SetProxy();
+                            });
                         }
                     }
                 }
@@ -80,7 +83,7 @@ export function SetAdditionalHosts(details) {
     });
 }
 
-export function callbackFnTest(details, callback) {
+export function callbackAuth(details, callback) {
     var ProxyData;
     var ProxyUser;
     if (details.isProxy) {
@@ -89,7 +92,7 @@ export function callbackFnTest(details, callback) {
             ProxyUser = {
             username: ProxyData[2],
             password: ProxyData[3]
-            }
+            };
             callback({authCredentials: ProxyUser});
         });
     }
@@ -164,10 +167,8 @@ function SelectConnectionType(ConnectionType, Whitelist, ProxyData) {
 
 export function UpdateAdditionalHosts(WhiteList) {
     chrome.storage.local.get(["AdditionalHosts", "ahList"], function(result) {
-        console.log(result.ahList);
         var WhiteListArray = WhiteList.split("|");
         var ahList = AdditionalHostsListGet(result.ahList);
-        console.log(ahList);
         var NewAdditionalHosts = [];
         for (var MainDomain in ahList) {
             if (WhiteListArray.includes(MainDomain)) {
